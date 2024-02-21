@@ -152,9 +152,9 @@ if __name__ == "__main__":
     print('--- Bot by Ozuromo ---\n')
 
     station_cap = int(input('Station capacity (default: 30): ').strip() or "30")
-    station_uses = int(input('Station uses (default: 10): ').strip() or "10")
     station_num = int(input('Number of stations (default: 32): ').strip() or "32")
-    rows = int(input('Number of rows for items (default: 4): ').strip() or "4")
+    station_uses = 10
+    rows = 3
 
     print("\nPress 'q' to start/stop or 'ESC' to quit.\n")
     print("--- --- --- --- --- ---\n")
