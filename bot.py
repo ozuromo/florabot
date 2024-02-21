@@ -20,7 +20,7 @@ class Bot:
 
         self.empty_colors = [np.array([179, 208, 234]), np.array([165, 190, 223])]
 
-        self.threshold = 0.9
+        self.threshold = 0.8
 
         self.item_tiles = [(i, j) for i in range(self.rows) for j in range(self.cols)]
         self.station_tiles = self.create_station_tiles(station_num)
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 print('Bot running.')
             else:
                 print('Bot paused.')
-            time.sleep(5)
+            time.sleep(2)
 
         if running:
             if not bot.run():
