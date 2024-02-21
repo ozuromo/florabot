@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 print('Bot running.')
             else:
                 print('Bot paused.')
-            time.sleep(1)
+            time.sleep(5)
 
         if running:
             if not bot.run():
