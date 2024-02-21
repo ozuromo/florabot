@@ -1,7 +1,9 @@
 # FloraBot
 Bot for Flora's Workshop on Idle Heroes, made by me.
 
-If you want to donate some CSG my in-game id is: 
+If you want to donate some SG my in-game id is: 111352605190.
+
+Demo video: https://youtu.be/E9XnVBbMgnU
 
 # Installation
 Install python then run the following command:
