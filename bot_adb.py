@@ -2,6 +2,7 @@ from com.dtmilano.android.viewclient import ViewClient
 import time
 import os
 import numpy as np
+import subprocess
 
 class Bot:
     def __init__(self, station_cap, station_uses, station_num, rows):
@@ -140,6 +141,12 @@ if __name__ == "__main__":
 
     print("\nPress 'Ctrl+C' to stop the Bot.\n")
     print("--- --- --- --- --- ---\n")
+
+
+    # start adb
+    serial = 'localhost:5555'
+    adb_path = os.path.join(os.getcwd(), 'platform-tools')
+    subprocess.check_output(['adb', 'connect', serial], cwd=adb_path, shell=True)
 
     bot = Bot(station_cap, station_uses, station_num, rows)
     
