@@ -4,6 +4,7 @@ Bot for Flora's Workshop on Idle Heroes, made by me.
 If you want to donate some SG my in-game id is: 111352605190.
 
 Demo video: https://www.youtube.com/watch?v=dJXlgxsMnc0
+
 ADB Files: https://developer.android.com/tools/releases/platform-tools
 
 # Installation
