@@ -5,7 +5,7 @@ import numpy as np
 import subprocess
 
 class Bot:
-    def __init__(self, station_cap, station_uses, station_num, rows):
+    def __init__(self, station_cap, station_uses, station_num, station_start, rows):
         self.station_cap = station_cap
         self.station_uses = station_uses
 
@@ -16,20 +16,20 @@ class Bot:
 
         self.empty_colors = [np.array([223, 190, 165]), np.array([234, 208, 179])]
 
-        self.threshold = 0.94
+        self.threshold = 0.91
 
         self.item_tiles = [(i, j) for i in range(self.rows) for j in range(self.cols)]
-        self.station_tiles = self.create_station_tiles(station_num)
+        self.station_tiles = self.create_station_tiles(station_start, station_num)
         self.uses = self.station_cap // self.station_uses
 
         self.device, self.serialno = ViewClient.connectToDeviceOrExit(verbose=True)
 
 
-    def create_station_tiles(self, station_num):
+    def create_station_tiles(self, station_start, station_num):
         station_tiles_blueprint = [(6-i, j) for i in range(2) for j in range(7)] +\
             [(6-i, j) for i in range(2, 4) for j in range(9)]
 
-        return station_tiles_blueprint[:station_num]
+        return station_tiles_blueprint[station_start:station_start+station_num]
 
 
     def ccoeff_normed(self, template, target):
@@ -138,6 +138,7 @@ if __name__ == "__main__":
     station_cap = int(input('Station capacity: ').strip() or "30")
     station_num = int(input('Number of stations: ').strip() or "32")
     station_uses = int(input('Number of clicks/loop: ').strip() or "10")
+    station_start = int(input('Stations start at: ').strip() or "0")
     rows = int(input('Number of rows to be used: ').strip() or "3")
 
     print("\nPress 'Ctrl+C' to stop the Bot.\n")
@@ -149,7 +150,7 @@ if __name__ == "__main__":
     adb_path = os.path.join(os.getcwd(), 'platform-tools')
     subprocess.check_output(['adb', 'connect', serial], cwd=adb_path, shell=True)
 
-    bot = Bot(station_cap, station_uses, station_num, rows)
+    bot = Bot(station_cap, station_uses, station_num, station_start, rows)
     
     try:
         while True:
