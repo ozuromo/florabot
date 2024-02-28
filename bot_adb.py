@@ -95,6 +95,7 @@ class Bot:
 
         for _ in range(self.station_uses):
             self.device.touch(x, y)
+            self.device.touch(x, y)
             time.sleep(.1)
 
         return True
