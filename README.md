@@ -12,7 +12,9 @@ Install python then run the following command:
 ```
 pip install numpy androidviewclient
 ```
-Download "bot_adb.py" and place it in a folder.
+Download "bot_adb.py" and place it in a folder. 
+
+Download the ADB Files and unzip "platform-tools" at the same folder your "bot_adb.py" file is.
 
 # Usage
 Make sure you activate the ADB server on Bluestack's Advanced Settings before you do anything.
