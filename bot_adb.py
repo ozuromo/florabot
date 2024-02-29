@@ -93,10 +93,10 @@ class Bot:
     def use_station(self, tile):
         x, y = self.index_to_pixel(tile)
 
+        self.device.touch(x, y)
         for _ in range(self.station_uses):
             self.device.touch(x, y)
-            self.device.touch(x, y)
-            time.sleep(.1)
+            time.sleep(.05)
 
         return True
 
