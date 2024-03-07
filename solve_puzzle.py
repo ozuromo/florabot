@@ -26,7 +26,7 @@ def Bot():
 
         normalized_cc = cross_corr / norm_factor
 
-        print(normalized_cc)
+        # print(normalized_cc)
         return normalized_cc
 
     def open_puzzle():
@@ -55,7 +55,7 @@ def Bot():
         
         for click in clicks:
             click()
-            time.sleep(.5)
+            time.sleep(.3)
 
     def solve_puzzle():
         cards_idxs = [(i, j) for i in range(4) for j in range(4)]
@@ -78,7 +78,7 @@ def Bot():
             offset = 10
             
             click_idx(idx)
-            time.sleep(0.5)
+            time.sleep(0.6)
 
             img = screenshot()
             card = img[y - offset:y + offset, x - offset:x + offset]
@@ -97,6 +97,7 @@ def Bot():
                 if coef > max_coef:
                     max_idx = idx
                     max_coef = coef
+            print(max_coef)
             return max_idx
 
         def solve():
@@ -114,11 +115,12 @@ def Bot():
 
                 
                 click_idx(card_idx)
-                time.sleep(.2)
+                time.sleep(.3)
                 click_idx(match_idx)
-                time.sleep(.2)
+                time.sleep(.3)
 
         save_cards()
+        time.sleep(1)
         solve()
     
     def run():
