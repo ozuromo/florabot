@@ -95,9 +95,9 @@ class Bot:
 
         self.device.touch(x, y)
         for _ in range(self.station_uses):
+            time.sleep(.4)
             self.device.touch(x, y)
-            time.sleep(.05)
-
+            
         return True
 
     def run(self):
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     station_cap = int(input('Station capacity: ').strip() or "30")
     station_num = int(input('Number of stations: ').strip() or "32")
     station_uses = int(input('Number of clicks/loop: ').strip() or "10")
-    station_start = int(input('Stations start at: ').strip() or "0")
+    station_start = int(input('Stations already used: ').strip() or "0")
     rows = int(input('Number of rows to be used: ').strip() or "3")
 
     print("\nPress 'Ctrl+C' to stop the Bot.\n")
