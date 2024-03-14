@@ -161,7 +161,7 @@ if __name__ == "__main__":
     sell = Sell()
 
     print("> Made by Ozuromo <")
-    n = int(input("How many gloves you want to use? "))
+    n = int(input("How many cubes you want to use? "))
 
     try:
         for _ in range(n):
