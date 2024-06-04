@@ -19,6 +19,8 @@ Download the ADB Files and unzip "platform-tools" at the same folder your "bot_a
 # Usage
 Make sure you activate the ADB server on Bluestack's Advanced Settings before you do anything.
 
+Use 1920x1080 resolution on Bluestack.
+
 Your Flora's House should be at the bottom right corner, and your stations should be organized bottom->top left->right.
 
 On the folder where "bot_adb.py" is, open a Terminal screen and use the following commnand:
