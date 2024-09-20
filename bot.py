@@ -46,16 +46,16 @@ def save_config(config):
 def listen_for_keys():
     global bot_state
     while True:
-        if keyboard.is_pressed('q'):
+        if keyboard.is_pressed('w'):
             bot_state["paused"] = not bot_state["paused"]  # Toggle pause state
             if bot_state["paused"]:
-                logging.info("Bot paused by user input (Q)")
+                logging.info("Bot paused by user input (w)")
             else:
-                logging.info("Bot resumed by user input (Q)")
+                logging.info("Bot resumed by user input (w)")
             time.sleep(0.5)  # Prevent rapid toggling
-        if keyboard.is_pressed('esc'):
+        if keyboard.is_pressed('q'):
             bot_state["running"] = False  # Set running to False to quit the bot
-            logging.info("Bot stopped by user input (ESC)")
+            logging.info("Bot stopped by user input (q)")
             break
         time.sleep(0.05)
 
@@ -242,6 +242,9 @@ if __name__ == "__main__":
     config["DEFAULT"]["tile_height"] = str(tile_height)
     config["DEFAULT"]["tile_width"] = str(tile_width)
     save_config(config)
+
+    print("\nPress 'w' to start/stop or 'q' to quit.\n")
+    print("--- --- --- --- --- ---\n")
 
     # Start the key listening thread
     key_listener_thread = threading.Thread(target=listen_for_keys, daemon=True)
