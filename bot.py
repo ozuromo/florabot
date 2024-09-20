@@ -59,8 +59,8 @@ class Bot:
        
         self.offset = 10 # 10 pixels around the center of the tile for matching purposes
 
-        #self.empty_colors = [np.array([179, 208, 234]), np.array([165, 190, 223])] # windows
-        self.empty_colors = [np.array([168, 191, 218]), np.array([182, 209, 230])] # mac os
+        self.empty_colors = [np.array([179, 208, 234]), np.array([165, 190, 223])] # windows
+        #self.empty_colors = [np.array([168, 191, 218]), np.array([182, 209, 230])] # mac os
 
         self.threshold = 0.8 # 0-1 range, closer to 1 means more strict matching
 
