@@ -24,7 +24,7 @@ class Bot:
             rows,
         )
 
-        self.station_uses = int(np.ceil(bot_station_attempts / (rows * 9)))
+        self.station_uses = int(np.ceil(bot_station_attempts / (rows * 9))) + 1
         self.rows = rows
         self.cols = 9
         self.offset = 10
@@ -153,6 +153,7 @@ class Bot:
 
             if self.use_station(self.station_tiles[0]):
                 self.uses -= 1
+                time.sleep(1)
 
             if self.uses == 0:
                 logging.info("Station depleted, moving to next station.")
