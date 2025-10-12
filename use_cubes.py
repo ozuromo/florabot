@@ -1,5 +1,6 @@
 from com.dtmilano.android.viewclient import ViewClient
 import time
+import os
 import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
@@ -156,7 +157,8 @@ def Bot():
 
 if __name__ == "__main__":
     serial = "localhost:5555"
-    subprocess.check_output(["adb", "connect", serial], shell=True)
+    adb_executable = os.path.join(os.getcwd(), "platform-tools", "adb")
+    subprocess.check_output([adb_executable, "connect", serial])
     device, serialno = ViewClient.connectToDeviceOrExit(verbose=True)
 
     use_cube = Bot()

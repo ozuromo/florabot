@@ -184,8 +184,8 @@ def start_bot():
 
         # start adb
         serial = "localhost:5555"
-        adb_path = os.path.join(os.getcwd(), "platform-tools")
-        subprocess.check_output(["adb", "connect", serial], cwd=adb_path, shell=True)
+        adb_executable = os.path.join(os.getcwd(), "platform-tools", "adb")
+        subprocess.check_output([adb_executable, "connect", serial])
 
         bot = Bot(bot_capacity, bot_clicks, bot_stations, bot_used_stations, rows)
 

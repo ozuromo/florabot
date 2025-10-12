@@ -138,8 +138,8 @@ def Bot():
 
 if __name__ == "__main__":
     serial = "localhost:5555"
-    adb_path = os.path.join(os.getcwd(), "platform-tools")
-    subprocess.check_output(["adb", "connect", serial], cwd=adb_path, shell=True)
+    adb_executable = os.path.join(os.getcwd(), "platform-tools", "adb")
+    subprocess.check_output([adb_executable, "connect", serial])
     device, serialno = ViewClient.connectToDeviceOrExit(verbose=True)
 
     run = Bot()
