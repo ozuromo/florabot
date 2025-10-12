@@ -9,19 +9,9 @@ from tkinter import messagebox
 import threading
 
 
-# Function to configure logging based on user input
-def setup_logging():
-    enable_logging = input("Do you want to enable logging? (y/n): ").strip().lower()
-    if enable_logging == "y":
-        logging.basicConfig(
-            level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-        logging.info("Logging is enabled at DEBUG level.")
-    else:
-        logging.basicConfig(
-            level=logging.CRITICAL
-        )  # Disable all logs below CRITICAL level
-        print("Logging is disabled.")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class Bot:
@@ -49,7 +39,7 @@ class Bot:
         logging.info("Bot initialized and connected to device.")
 
     def create_station_tiles(self, station_start, station_num):
-        logging.info(
+        logging.debug(
             "Creating station tiles from station_start=%s to station_num=%s",
             station_start,
             station_num,
@@ -69,7 +59,7 @@ class Bot:
         return normalized_cc
 
     def screenshot(self):
-        logging.info("Taking a screenshot.")
+        logging.debug("Taking a screenshot.")
         im = self.device.takeSnapshot(reconnect=True)  # PIL img
         return np.array(im)[:, :, :3]
 
@@ -91,7 +81,7 @@ class Bot:
 
     def find_match(self, target_tile, tiles, img):
         if not tiles:
-            logging.info("No tiles to match.")
+            logging.debug("No tiles to match.")
             return False
 
         x, y = self.index_to_pixel(target_tile)
@@ -116,26 +106,28 @@ class Bot:
                 coef,
             )
             if coef > self.threshold:
-                logging.info("Found a match for tile %s", target_tile)
+                logging.debug("Found a match for tile %s", target_tile)
                 return match_tile
 
-        logging.info("No match found for tile %s", target_tile)
+        logging.debug("No match found for tile %s", target_tile)
         return False
 
     def drag(self, match, tile):
         x, y = self.index_to_pixel(match)
         z, w = self.index_to_pixel(tile)
-        logging.info("Dragging from %s to %s", (x, y), (z, w))
+        logging.debug("Dragging from %s to %s", (x, y), (z, w))
         self.device.drag((x, y), (z, w), duration=100)
 
     def use_station(self, tile):
         x, y = self.index_to_pixel(tile)
         logging.info("Using station at tile %s", tile)
         self.device.touch(x, y)
+        time.sleep(0.3)
+        self.device.touch(x, y)
         return True
 
     def run(self):
-        logging.info("Start run")
+        logging.debug("Start run")
         matched = False
         tiles = self.item_tiles.copy()
         img = self.screenshot()
