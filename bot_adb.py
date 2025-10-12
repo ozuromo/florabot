@@ -4,13 +4,16 @@ import time
 import os
 import numpy as np
 import subprocess
+import tkinter as tk
+from tkinter import messagebox
+import threading
 
 # Function to configure logging based on user input
 def setup_logging():
     enable_logging = input('Do you want to enable logging? (y/n): ').strip().lower()
     if enable_logging == 'y':
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        logging.info("Logging is enabled.")
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.info("Logging is enabled at DEBUG level.")
     else:
         logging.basicConfig(level=logging.CRITICAL)  # Disable all logs below CRITICAL level
         print("Logging is disabled.")
@@ -25,11 +28,12 @@ class Bot:
         self.rows = rows
         self.cols = 9
         self.offset = 10
-        self.empty_colors = [np.array([223, 190, 165]), np.array([234, 208, 179])]
-        self.threshold = 0.91
+        self.empty_colors = [np.array([223, 190, 164]), np.array([234, 208, 178])]
+        self.threshold = 0.90
         self.item_tiles = [(i, j) for i in range(self.rows) for j in range(self.cols)]
         self.station_tiles = self.create_station_tiles(station_start, station_num)
         self.uses = self.station_cap // self.station_uses
+        self.running = False
 
         self.device, self.serialno = ViewClient.connectToDeviceOrExit(verbose=True)
         logging.info("Bot initialized and connected to device.")
@@ -67,9 +71,8 @@ class Bot:
     
     def is_empty(self, tile, img):
         x, y = self.index_to_pixel(tile)
-        is_empty = any((img[y, x] == color).all() for color in self.empty_colors)
-        logging.debug("Tile %s is empty: %s", tile, is_empty)
-        return is_empty
+        tile_color = img[y, x]
+        return any((tile_color == color).all() for color in self.empty_colors)
 
     def find_match(self, target_tile, tiles, img):
         if not tiles:
@@ -105,12 +108,10 @@ class Bot:
         x, y = self.index_to_pixel(tile)
         logging.info("Using station at tile %s", tile)
         self.device.touch(x, y)
-        for _ in range(self.station_uses):
-            time.sleep(.4)
-            self.device.touch(x, y)
         return True
 
     def run(self):
+        logging.info("Start run")
         matched = False
         tiles = self.item_tiles.copy()
         img = self.screenshot()
@@ -145,32 +146,106 @@ class Bot:
         time.sleep(0.3)
         return True
 
-if __name__ == "__main__":
-    setup_logging()
-    
-    logging.info('--- Bot by Ozuromo ---\n')   
-
-    station_cap = int(input('Station capacity: ').strip() or "30")
-    station_num = int(input('Number of stations: ').strip() or "32")
-    station_uses = int(input('Number of clicks/loop: ').strip() or "10")
-    station_start = int(input('Stations already used: ').strip() or "0")
-    rows = int(input('Number of rows to be used: ').strip() or "3")
-
-    logging.info("\nPress 'Ctrl+C' to stop the Bot.\n")
-
-    # start adb
-    serial = 'localhost:5555'
-    adb_path = os.path.join(os.getcwd(), 'platform-tools')
-    subprocess.check_output(['adb', 'connect', serial], cwd=adb_path, shell=True)
-
-    bot = Bot(station_cap, station_uses, station_num, station_start, rows)
-    
+def start_bot():
+    global bot
     try:
-        while True:
+        bot_capacity = int(station_capacity_entry.get())
+        bot_stations = int(number_of_stations_entry.get())
+        bot_clicks = int(number_of_clicks_entry.get())
+        bot_used_stations = int(stations_used_entry.get())
+        rows = int(rows_entry.get())  # Get number of rows
+
+        # start adb
+        serial = 'localhost:5555'
+        adb_path = os.path.join(os.getcwd(), 'platform-tools')
+        subprocess.check_output(['adb', 'connect', serial], cwd=adb_path, shell=True)
+    
+        bot = Bot(bot_capacity, bot_clicks, bot_stations, bot_used_stations, rows)
+
+        bot.running = True
+        disable_fields()
+
+        while bot.running:
             if not bot.run():
                 logging.warning('\nNo stations available, exiting Bot.')
                 break
-    except KeyboardInterrupt:
-        logging.info('\nBot stopped.')
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
     finally:
-        os._exit(0)
+        enable_fields()
+
+def stop_bot():
+    # Stop the bot by setting the running flag to False
+    bot.running = False
+
+def disable_fields():
+    station_capacity_entry.config(state='disabled')
+    number_of_stations_entry.config(state='disabled')
+    number_of_clicks_entry.config(state='disabled')
+    stations_used_entry.config(state='disabled')
+    rows_entry.config(state='disabled')  # Disable rows entry
+
+def enable_fields():
+    station_capacity_entry.config(state='normal')
+    number_of_stations_entry.config(state='normal')
+    number_of_clicks_entry.config(state='normal')
+    stations_used_entry.config(state='normal')
+    rows_entry.config(state='normal')  # Enable rows entry
+
+def show_info(title, message):
+    messagebox.showinfo(title, message)
+
+# GUI Setup
+root = tk.Tk()
+root.title("Bot Control")
+
+# Adding margins by using a frame
+main_frame = tk.Frame(root, padx=10, pady=10)
+main_frame.pack()
+
+# Labels and Entries for the fields
+tk.Label(main_frame, text="Station Capacity").grid(row=0, column=0)
+station_capacity_entry = tk.Entry(main_frame)
+station_capacity_entry.grid(row=0, column=1)
+tk.Button(main_frame, text="?", command=lambda: show_info("Station Capacity", "Enter the maximum number of uses the station can handle.")).grid(row=0, column=2)
+
+tk.Label(main_frame, text="Number of Stations").grid(row=1, column=0)
+number_of_stations_entry = tk.Entry(main_frame)
+number_of_stations_entry.grid(row=1, column=1)
+tk.Button(main_frame, text="?", command=lambda: show_info("Number of Stations", "Enter the total number of stations available.")).grid(row=1, column=2)
+
+tk.Label(main_frame, text="Number of Clicks/Loop").grid(row=2, column=0)
+number_of_clicks_entry = tk.Entry(main_frame)
+number_of_clicks_entry.grid(row=2, column=1)
+tk.Button(main_frame, text="?", command=lambda: show_info("Clicks per Loop", "Enter how many clicks each loop should perform.")).grid(row=2, column=2)
+tk.Label(main_frame, text="Stations Already Used").grid(row=3, column=0)
+stations_used_entry = tk.Entry(main_frame)
+stations_used_entry.grid(row=3, column=1)
+tk.Button(main_frame, text="?", command=lambda: show_info("Stations Already Used", "Enter the number of stations you have already utilized.")).grid(row=3, column=2)
+
+tk.Label(main_frame, text="Number of Rows").grid(row=4, column=0)
+rows_entry = tk.Entry(main_frame)
+rows_entry.grid(row=4, column=1)
+tk.Button(main_frame, text="?", command=lambda: show_info("Number of Rows", "Enter how many rows to be used in the bot's logic.")).grid(row=4, column=2)
+
+# Add instruction text
+instruction_label = tk.Label(main_frame, text="Please activate 'Batch Produce' in Flora's Craft Workshop.")
+instruction_label.grid(row=5, column=0, columnspan=3, pady=(10, 0))
+
+# Start and Stop buttons
+start_button = tk.Button(main_frame, text="Start", command=lambda: threading.Thread(target=start_bot).start())
+start_button.grid(row=6, column=0)
+
+stop_button = tk.Button(main_frame, text="Stop", command=stop_bot)
+stop_button.grid(row=6, column=1)
+
+
+# Setting default values if needed
+station_capacity_entry.insert(0, "5")
+number_of_stations_entry.insert(0, "32")
+number_of_clicks_entry.insert(0, "1")
+stations_used_entry.insert(0, "0")
+rows_entry.insert(0, "3")  # Default value for number of rows
+
+# Start the GUI event loop
+root.mainloop()
