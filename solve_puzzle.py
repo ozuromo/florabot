@@ -5,13 +5,14 @@ import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
 
+
 def Bot():
-    def screenshot(save_img = False):
-        img = device.takeSnapshot(reconnect=True) # PIL img
+    def screenshot(save_img=False):
+        img = device.takeSnapshot(reconnect=True)  # PIL img
         if save_img:
-            img.save('im.png', 'PNG')
-        return np.array(img)[:, :, :3] # remove alpha
-    
+            img.save("im.png", "PNG")
+        return np.array(img)[:, :, :3]  # remove alpha
+
     def show_img(img):
         plt.axis("off")
         plt.imshow(img)
@@ -19,7 +20,7 @@ def Bot():
 
     def ccoeff_normed(target, match):
         target_norm = (target - np.mean(target)) / np.std(target)
-        match_norm  = (match  -  np.mean(match)) /  np.std(match)
+        match_norm = (match - np.mean(match)) / np.std(match)
 
         cross_corr = np.correlate(target_norm.flatten(), match_norm.flatten())
         norm_factor = np.sqrt(np.sum(target_norm**2) * np.sum(match_norm**2))
@@ -44,18 +45,18 @@ def Bot():
 
         def click_confirm():
             x, y = 960, 760
-            device. touch(x, y)
+            device.touch(x, y)
 
         clicks = [
             click_visit,
-            #click_glove,
+            # click_glove,
             click_matching,
-            click_confirm
+            click_confirm,
         ]
-        
+
         for click in clicks:
             click()
-            time.sleep(.3)
+            time.sleep(0.3)
 
     def solve_puzzle():
         cards_idxs = [(i, j) for i in range(4) for j in range(4)]
@@ -69,19 +70,18 @@ def Bot():
             i, j = idx
             x_offset, y_offset = 644, 282
             w, h = 164.33, 164.66
-            x, y = x_offset + j*w + w/2, y_offset + i*h + h/2
-            return  int(x), int(y)
-        
-        
+            x, y = x_offset + j * w + w / 2, y_offset + i * h + h / 2
+            return int(x), int(y)
+
         def get_card(idx):
             x, y = idx_to_pixel(idx)
             offset = 10
-            
+
             click_idx(idx)
             time.sleep(0.6)
 
             img = screenshot()
-            card = img[y - offset:y + offset, x - offset:x + offset]
+            card = img[y - offset : y + offset, x - offset : x + offset]
             return card
 
         def save_cards():
@@ -108,21 +108,20 @@ def Bot():
                 if not (match_idx := find_match(card_img)):
                     print("Match not found, something's wrong!")
                     return
-                
+
                 idx = cards_idxs.index(match_idx)
                 cards_idxs.pop(idx)
                 cards_imgs.pop(idx)
 
-                
                 click_idx(card_idx)
-                time.sleep(.3)
+                time.sleep(0.3)
                 click_idx(match_idx)
-                time.sleep(.3)
+                time.sleep(0.3)
 
         save_cards()
         time.sleep(1)
         solve()
-    
+
     def run():
         def click_confirm():
             x, y = 960, 960
@@ -136,10 +135,11 @@ def Bot():
 
     return run
 
+
 if __name__ == "__main__":
-    serial = 'localhost:5555'
-    adb_path = os.path.join(os.getcwd(), 'platform-tools')
-    subprocess.check_output(['adb', 'connect', serial], cwd=adb_path, shell=True)
+    serial = "localhost:5555"
+    adb_path = os.path.join(os.getcwd(), "platform-tools")
+    subprocess.check_output(["adb", "connect", serial], cwd=adb_path, shell=True)
     device, serialno = ViewClient.connectToDeviceOrExit(verbose=True)
 
     run = Bot()
@@ -150,4 +150,4 @@ if __name__ == "__main__":
         while True:
             run()
     except KeyboardInterrupt:
-        print('\nBot stopped.')
+        print("\nBot stopped.")
