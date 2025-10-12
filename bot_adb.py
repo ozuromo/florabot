@@ -25,18 +25,16 @@ def setup_logging():
 
 
 class Bot:
-    def __init__(self, station_cap, station_uses, station_num, station_start, rows):
+    def __init__(self, bot_station_attempts, station_num, station_start, rows):
         logging.info(
-            "Initializing bot with station_cap=%s, station_uses=%s, station_num=%s, station_start=%s, rows=%s",
-            station_cap,
-            station_uses,
+            "Initializing bot with station_attempts=%s, station_num=%s, station_start=%s, rows=%s",
+            bot_station_attempts,
             station_num,
             station_start,
             rows,
         )
 
-        self.station_cap = station_cap
-        self.station_uses = station_uses
+        self.station_uses = int(np.ceil(bot_station_attempts / (rows * 9)))
         self.rows = rows
         self.cols = 9
         self.offset = 10
@@ -44,7 +42,7 @@ class Bot:
         self.threshold = 0.90
         self.item_tiles = [(i, j) for i in range(self.rows) for j in range(self.cols)]
         self.station_tiles = self.create_station_tiles(station_start, station_num)
-        self.uses = self.station_cap // self.station_uses
+        self.uses = self.station_uses
         self.running = False
 
         self.device, self.serialno = ViewClient.connectToDeviceOrExit(verbose=True)
@@ -167,7 +165,7 @@ class Bot:
             if self.uses == 0:
                 logging.info("Station depleted, moving to next station.")
                 self.station_tiles.pop(0)
-                self.uses = self.station_cap // self.station_uses
+                self.uses = self.station_uses
 
         time.sleep(0.3)
         return True
@@ -176,10 +174,9 @@ class Bot:
 def start_bot():
     global bot
     try:
-        bot_capacity = int(station_capacity_entry.get())
-        bot_stations = int(number_of_stations_entry.get())
-        bot_clicks = int(number_of_clicks_entry.get())
-        bot_used_stations = int(stations_used_entry.get())
+        bot_station_attempts = int(station_attempts_entry.get())
+        bot_station_num = int(station_num_entry.get())
+        bot_station_start = int(station_start_entry.get())
         rows = int(rows_entry.get())  # Get number of rows
 
         # start adb
@@ -187,7 +184,7 @@ def start_bot():
         adb_executable = os.path.join(os.getcwd(), "platform-tools", "adb")
         subprocess.check_output([adb_executable, "connect", serial])
 
-        bot = Bot(bot_capacity, bot_clicks, bot_stations, bot_used_stations, rows)
+        bot = Bot(bot_station_attempts, bot_station_num, bot_station_start, rows)
 
         bot.running = True
         disable_fields()
@@ -208,18 +205,16 @@ def stop_bot():
 
 
 def disable_fields():
-    station_capacity_entry.config(state="disabled")
-    number_of_stations_entry.config(state="disabled")
-    number_of_clicks_entry.config(state="disabled")
-    stations_used_entry.config(state="disabled")
+    station_attempts_entry.config(state="disabled")
+    station_num_entry.config(state="disabled")
+    station_start_entry.config(state="disabled")
     rows_entry.config(state="disabled")  # Disable rows entry
 
 
 def enable_fields():
-    station_capacity_entry.config(state="normal")
-    number_of_stations_entry.config(state="normal")
-    number_of_clicks_entry.config(state="normal")
-    stations_used_entry.config(state="normal")
+    station_attempts_entry.config(state="disabled")
+    station_num_entry.config(state="disabled")
+    station_start_entry.config(state="disabled")
     rows_entry.config(state="normal")  # Enable rows entry
 
 
@@ -236,58 +231,50 @@ main_frame = tk.Frame(root, padx=10, pady=10)
 main_frame.pack()
 
 # Labels and Entries for the fields
-tk.Label(main_frame, text="Station Capacity").grid(row=0, column=0)
-station_capacity_entry = tk.Entry(main_frame)
-station_capacity_entry.grid(row=0, column=1)
+tk.Label(main_frame, text="Station attempts").grid(row=0, column=0)
+station_attempts_entry = tk.Entry(main_frame)
+station_attempts_entry.grid(row=0, column=1)
 tk.Button(
     main_frame,
     text="?",
     command=lambda: show_info(
-        "Station Capacity", "Enter the maximum number of uses the station can handle."
+        "Station attempts",
+        "Enter the number of attempts the station can handle.",
     ),
 ).grid(row=0, column=2)
 
-tk.Label(main_frame, text="Number of Stations").grid(row=1, column=0)
-number_of_stations_entry = tk.Entry(main_frame)
-number_of_stations_entry.grid(row=1, column=1)
+tk.Label(main_frame, text="Number of stations").grid(row=1, column=0)
+station_num_entry = tk.Entry(main_frame)
+station_num_entry.grid(row=1, column=1)
 tk.Button(
     main_frame,
     text="?",
     command=lambda: show_info(
-        "Number of Stations", "Enter the total number of stations available."
+        "Number of stations", "Enter the total number of stations available."
     ),
 ).grid(row=1, column=2)
 
-tk.Label(main_frame, text="Number of Clicks/Loop").grid(row=2, column=0)
-number_of_clicks_entry = tk.Entry(main_frame)
-number_of_clicks_entry.grid(row=2, column=1)
+tk.Label(main_frame, text="Stations already used").grid(row=3, column=0)
+station_start_entry = tk.Entry(main_frame)
+station_start_entry.grid(row=3, column=1)
 tk.Button(
     main_frame,
     text="?",
     command=lambda: show_info(
-        "Clicks per Loop", "Enter how many clicks each loop should perform."
-    ),
-).grid(row=2, column=2)
-tk.Label(main_frame, text="Stations Already Used").grid(row=3, column=0)
-stations_used_entry = tk.Entry(main_frame)
-stations_used_entry.grid(row=3, column=1)
-tk.Button(
-    main_frame,
-    text="?",
-    command=lambda: show_info(
-        "Stations Already Used",
+        "Stations already used",
         "Enter the number of stations you have already utilized.",
     ),
 ).grid(row=3, column=2)
 
-tk.Label(main_frame, text="Number of Rows").grid(row=4, column=0)
+tk.Label(main_frame, text="Number of rows").grid(row=4, column=0)
 rows_entry = tk.Entry(main_frame)
 rows_entry.grid(row=4, column=1)
 tk.Button(
     main_frame,
     text="?",
     command=lambda: show_info(
-        "Number of Rows", "Enter how many rows to be used in the bot's logic."
+        "Number of rows",
+        "Enter how many rows are available for the items. Top to bottom.",
     ),
 ).grid(row=4, column=2)
 
@@ -308,10 +295,9 @@ stop_button.grid(row=6, column=1)
 
 
 # Setting default values if needed
-station_capacity_entry.insert(0, "5")
-number_of_stations_entry.insert(0, "32")
-number_of_clicks_entry.insert(0, "1")
-stations_used_entry.insert(0, "0")
+station_attempts_entry.insert(0, "30")
+station_num_entry.insert(0, "32")
+station_start_entry.insert(0, "0")
 rows_entry.insert(0, "3")  # Default value for number of rows
 
 # Start the GUI event loop
